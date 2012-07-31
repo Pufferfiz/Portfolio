@@ -1,0 +1,306 @@
+/*
+ * DoublyLinkedList.h
+ *
+ *  Created on: Sep 30, 2011
+ *      Author: kencorma
+ */
+
+#ifndef DOUBLYLINKEDLIST_H_
+#define DOUBLYLINKEDLIST_H_
+
+#include "Node.h"
+#include "StandardIncludes.h"
+
+template <class T>
+class DoublyLinkedList
+{
+public:
+	DoublyLinkedList();
+	virtual ~DoublyLinkedList();
+	DoublyLinkedList(DoublyLinkedList& toBeCopied);
+	DoublyLinkedList& operator=(DoublyLinkedList& rhs);
+	T& operator[](unsigned int index);
+	bool operator==(DoublyLinkedList& rhs) const;
+	bool operator!=(DoublyLinkedList& rhs) const;
+	unsigned int size() const;
+	void clear();
+	Node<T>* getNode(T data) const;
+	void removeAt(unsigned int index);
+	void insertAt(unsigned int index, T data);
+	T popBack();
+	Node<T>* getFromIndex(unsigned int index);
+	void remove(T data);
+	void pushBack(T data);
+private:
+	Node<T>* head;
+};
+
+template <class T>
+DoublyLinkedList<T>::DoublyLinkedList()
+{
+	// TODO Auto-generated constructor stub
+
+}
+
+template <class T>
+DoublyLinkedList<T>::~DoublyLinkedList()
+{
+	delete head;
+}
+
+template<class T>
+DoublyLinkedList<T>::DoublyLinkedList(const DoublyLinkedList& rhs) : head(NULL)
+{
+	for (unsigned int index = 0; index < rhs.size(); index++)
+		{
+			pushBack(rhs[index]);
+		}
+}
+
+template<class T>
+DoublyLinkedList<T>& DoublyLinkedList<T>::operator=(const DoublyLinkedList<T>& rhs)
+{
+	if (*this == rhs)
+		return *this;
+	clear();
+	for (unsigned int index = 0; index < rhs.size(); index++)
+	{
+		pushBack(rhs[index]);
+	}
+	return *this;
+}
+
+template<class T>
+T& DoublyLinkedList<T>::operator[](unsigned int index) const
+{
+	cout << "No Such Node" << endl;
+	if(index >= size())
+	{
+		cout << "No Such Node" << endl;
+	}
+	return getFromIndex(index)->getDataByReference();
+}
+
+template <class T>
+void DoublyLinkedList<T>::clear()
+{
+	if (head == NULL)
+	{
+		return;
+	}
+	Node<T>* currentNode = head;
+	Node<T>* nextNode;
+	while (currentNode != NULL)
+	{
+		nextNode = currentNode->getNext();
+		delete currentNode;
+		currentNode = nextNode;
+	}
+	head = NULL;
+
+}
+
+template <class T>
+void DoublyLinkedList<T>::insertAt(unsigned int index, T data)
+{
+	if (index >= size())
+	{
+		cout << "out of range" << endl;
+		return;
+	}
+	else
+	{
+		Node<T>* newNode = new Node<T>(data);
+		if (index == 0)
+		{
+			newNode->setNext(head);
+			head->setPrevious(newNode);
+			head = newNode;
+		}
+		else if(index == (size() - 1))
+		{
+			Node<T>* previousNode = getFromIndex(size());
+			previousNode->setNext(newNode);
+			newNode->setPrevious(previousNode);
+		}
+		else
+		{
+			Node<T>* nodeAtIndex = getFromIndex(index);
+			Node<T>* previousNode = nodeAtIndex->getPrevious();
+			nodeAtIndex->setPrevious(newNode);
+			newNode->setNext(nodeAtIndex);
+			previousNode->setNext(newNode);
+		}
+	}
+
+}
+
+
+template<class T>
+unsigned int DoublyLinkedList<T>::size() const
+{
+	if (head == NULL)
+	{
+		return 0;
+	}
+
+	int counter = 1;
+	Node<T>* currentNode = head;
+	while (currentNode->getNext() != NULL)
+	{
+		currentNode = currentNode->getNext();
+		counter++;
+	}
+	return counter;
+}
+
+template <class T>
+void DoublyLinkedList<T>::remove(T data)
+{
+	if (head == NULL)
+	{
+		cout << "No Node" << endl;
+	}
+	else
+	{
+		if (head->getData() == data)
+		{
+			Node<T>* newHeadNode = head->getNext();
+			delete head;
+			head = newHeadNode;
+			newHeadNode->setPrevious(NULL);
+		}
+		else if(getFromIndex((size() - 1))->getData() == data) // Tail
+		{
+			Node<T>* nodeData = getNode(data);
+			Node<T>* newTailNode = nodeData->getPrevious();
+			delete nodeData;
+			newTailNode->setNext(NULL);
+		}
+		else
+		{
+			Node<T>* nodeData = getNode(data);
+			Node<T>* previousNode = nodeData->getPrevious();
+			Node<T>* nextNode = nodeData->getNext();
+			delete nodeData;
+			previousNode->setNext(nextNode);
+			nextNode->setPrevious(previousNode);
+		}
+	}
+}
+
+template<class T>
+Node<T>* DoublyLinkedList<T>::getNode(T data) const
+{
+	for (unsigned int index = 0; index < size(); index++)
+	{
+		if((*this)[index] == data)
+			return getFromIndex(index);
+	}
+	cout << "No Node" << endl;
+	return NULL;
+}
+
+
+template <class T>
+T DoublyLinkedList<T>::popBack()
+{
+	if (head == NULL)
+	{
+		cout << "no Node" << endl;
+	}
+	if (head->getNext() == NULL)
+	{
+		T data = head->getData();
+		delete head;
+		head = NULL;
+		return data;
+	}
+	Node<T>* topNode = getFromIndex(size() - 1);
+	T data = topNode->getData();
+	Node<T>* previousNode = topNode->getPrevious();
+	previousNode->setNext(NULL);
+	delete topNode;
+	return data;
+}
+
+template <class T>
+void DoublyLinkedList<T>::pushBack(T data)
+{
+	Node<T>* newNode = new Node<T>(data);
+	if (head == NULL)
+		head = newNode;
+	else
+	{
+		Node<T>* topNode = getFromIndex(size() - 1);
+		topNode->setNext(newNode);
+		newNode->setPrevious(topNode);
+	}
+}
+
+template <class T>
+void DoublyLinkedList::removeAt(unsigned int index)
+{
+	if(index >= size())
+	{
+		cout << "No node" << endl;
+	}
+	else
+	{
+		if (index == 0)
+		{
+			Node<T>* newHeadNode = head->getNext();
+			delete head;
+			head = newHeadNode;
+			newHeadNode->setPrevious(NULL);
+		}
+		else if(index == (size() - 1)) // Tail
+		{
+			Node<T>* nodeAtIndex = getFromIndex(index);
+			Node<T>* newTailNode = nodeAtIndex->getPrevious();
+			delete nodeAtIndex;
+			newTailNode->setNext(NULL);
+		}
+		else
+		{
+			Node<T>* nodeAtIndex = getFromIndex(index);
+			Node<T>* previousNode = nodeAtIndex->getPrevious();
+			Node<T>* nextNode = nodeAtIndex->getNext();
+			delete nodeAtIndex;
+			previousNode->setNext(nextNode);
+			nextNode->setPrevious(previousNode);
+		}
+	}
+}
+
+template<class T>
+bool DoublyLinkedList<T>::operator !=(const DoublyLinkedList& rhs)
+{
+	if(*this == rhs)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+
+	}
+}
+
+template<class T>
+bool DoublyLinkedList<T>::operator==(const DoublyLinkedList& rhs)
+{
+	if (this->size() != rhs.size())
+	{
+		return false;
+	}
+	for (unsigned int index = 0; index < size(); index++)
+	{
+		if ((*this)[index] != rhs[index])
+			return false;
+	}
+	return true;
+}
+
+
+#endif /* DOUBLYLINKEDLIST_H_ */

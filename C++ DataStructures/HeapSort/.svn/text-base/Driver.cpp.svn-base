@@ -1,0 +1,136 @@
+/*
+ *
+ * University of Advancing Technology Standard C++ Template Driver
+ *
+ * Name: Driver.cpp
+ * Student: Kendal Cormany
+ *
+ */
+
+#include "StandardIncludes.h"
+#include <cppunit/TestFixture.h>
+#include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/ui/text/TestRunner.h>
+
+
+
+void shiftDown(int array[],int start)
+{
+	int root = start;
+	int size = 10;//sizeof array / sizeof(int);
+	int temp = 0;
+	int large = root;
+	int left = root * 2 + 1;
+
+	int right = root * 2 + 2;
+
+	if(left <= size && array[left] > array[root])
+
+	{
+		large = left;
+	}
+	if(right <= size && array[right] > array[large])
+	{
+		large = right;
+	}
+	if(large != root)
+	{
+		temp = array[root];
+		array[root] = array[large];
+		array[large] = temp;
+		shiftDown(array,large);
+	}
+
+
+}
+
+
+void heapify(int array[], int count)
+{
+	  for (int i = (count - 1) / 2; i >= 0; i--) {
+		shiftDown(array, i);
+	  }
+}
+
+
+
+void heapSort(int array[], int count)
+{
+	heapify(array,count);
+	int end = 0;
+	int temp = 0;
+	end = count;
+	for (int i = end; i > 0; i--)
+	{
+		temp = array[0];
+		array[0] = array[end-1];
+		array[end-1]= temp;
+		end  = end -1;
+		shiftDown(array,0);
+	}
+}
+
+class tests : public CppUnit::TestFixture
+{
+	CPPUNIT_TEST_SUITE (tests);
+	CPPUNIT_TEST (testheap);
+	CPPUNIT_TEST_SUITE_END ();
+private:
+	int array[];
+public:
+	void setUp()
+	{
+		//int * array = new int[6];
+		array[0] = 1;
+		array[1] = 3;
+		array[2] = 0;
+		array[3] = 5;
+		array[4] = 2;
+		array[5] = 4;
+
+	}
+	void tearDown()
+	{
+		delete [] array;
+	}
+	void testheap()
+	{
+		cout << "Test Heap Started" << endl;
+		heapSort(array,6);
+		CPPUNIT_ASSERT(array[0] == 5);
+		CPPUNIT_ASSERT(array[1] == 4);
+		CPPUNIT_ASSERT(array[2] == 3);
+		CPPUNIT_ASSERT(array[3] == 2);
+		CPPUNIT_ASSERT(array[4] == 1);
+		CPPUNIT_ASSERT(array[5] == 0);
+		cout << "Test Heap Ended" << endl;
+	}
+};
+
+bool runtest()
+{
+	CppUnit::TextUi::TestRunner runner;
+	runner.addTest(tests::suite());
+	return runner.run();
+}
+
+int main()
+{
+	// Define your code here
+	bool passed = runtest();  //<- tests are here, but disable since it is broken in one spot.
+	int intarray[10];
+	cout << "Unsorted: "<< endl;
+	for (int var = 0; var < 10; ++var)
+	{
+		intarray[var] = rand() % 100;
+		cout << intarray[var] << endl;
+	}
+
+	cout << "Sorted: " << endl;
+	heapSort(intarray,10);
+	for (int var = 0; var < 10; ++var)
+	{
+		cout << intarray[var] << endl;
+	}
+	return 0;
+}
